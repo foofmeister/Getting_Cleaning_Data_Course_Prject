@@ -1,0 +1,65 @@
+
+#Download package and set working directory
+
+library(RCurl)
+library(plyr)
+library(dplyr)
+setwd("C:/Users/summers.forest/R/Coursera_Data_Cleaning")
+
+##Location of Zip
+
+urlzip <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
+download.file(urlzip,"SMARTPHONE.zip")
+unzip("SMARTPHONE.zip")
+
+##read Tables
+
+x_test <- read.table("./UCI HAR Dataset/test/X_test.txt")
+x_train <- read.table("./UCI HAR Dataset/train/X_train.txt")
+
+y_test <- read.table("./UCI HAR Dataset/test/y_test.txt")
+y_train <- read.table("./UCI HAR Dataset/train/y_train.txt")
+
+sub_test <- read.table("./UCI HAR Dataset/test/subject_test.txt")
+sub_train <- read.table("./UCI HAR Dataset/train/subject_train.txt")
+
+yvar <- rbind(y_train, y_test)
+
+yvar <- plyr::rename(yvar,c("V1"="Activity"))
+
+sub <- rbind(sub_train, sub_test)
+
+sub <- plyr::rename(sub,c("V1"="Subject"))
+
+data <- rbind(x_train, x_test)
+
+#Download Features
+
+features <- read.table("./UCI HAR Dataset/features.txt")
+
+#Change Names of Data Set to Actual Names using 
+
+names(data) <- features$V2
+
+#features_mean_std <- features[grepl("mean|std",features$V2),]
+
+features_mean_std <- grepl("mean|std",features$V2)
+
+data1 <- subset(data,select = features_mean_std)
+
+data2 <- cbind(sub,yvar,data1)
+
+#Download Activity Lables
+
+activity_labels <- read.table("./UCI HAR Dataset/activity_labels.txt")
+
+#Merge data with activity labels
+data3 <- merge(activity_labels,data2,by.x="V1",by.y="Activity")
+
+
+#Rename Activity and remove "V2"
+data3 <- plyr::rename(data3,c("V2"="Activity"))
+
+Final_Data <- select(data3,-V1)
+
+mean_std <- features[grepl("june", tolower(m$Special.Notes))]
